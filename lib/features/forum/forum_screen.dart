@@ -30,14 +30,15 @@ class _ForumScreenState extends State<ForumScreen> {
 
 	Future<void> _post() async {
 		final text = _controller.text.trim();
-		if (text.isEmpty || _uid == null) return;
-		await _service.createPost(content: text, authorUid: _uid!);
+		if (text.isEmpty) return;
+		final author = _uid ?? 'anonymous';
+		await _service.createPost(content: text, authorUid: author);
 		_controller.clear();
 	}
 
 	@override
 	Widget build(BuildContext context) {
-		final alias = _uid == null ? 'Offline Mode' : AuthService().aliasForUid(_uid!);
+		final alias = _uid == null ? 'Anonymous' : AuthService().aliasForUid(_uid!);
 		return Column(
 			children: [
 				Padding(
@@ -55,7 +56,7 @@ class _ForumScreenState extends State<ForumScreen> {
 								),
 							),
 							const SizedBox(width: 8),
-							ElevatedButton(onPressed: _uid == null ? null : _post, child: const Text('Post')),
+							ElevatedButton(onPressed: _post, child: const Text('Post')),
 						],
 					),
 				),
@@ -65,7 +66,7 @@ class _ForumScreenState extends State<ForumScreen> {
 						builder: (context, snapshot) {
 							final posts = snapshot.data ?? const <ForumPost>[];
 							if (posts.isEmpty) {
-								return const Center(child: Text('No posts yet. Sign in to share.'));
+								return const Center(child: Text('No posts yet. Be the first to share.'));
 							}
 							return ListView.separated(
 								padding: const EdgeInsets.all(12),
@@ -92,8 +93,8 @@ class _ForumScreenState extends State<ForumScreen> {
 													const SizedBox(height: 8),
 													Row(
 														children: [
-															TextButton.icon(onPressed: _uid == null ? null : () => _service.react(id: p.id, field: 'hugs'), icon: const Text('🤗'), label: Text('${p.hugs}')),
-															TextButton.icon(onPressed: _uid == null ? null : () => _service.react(id: p.id, field: 'highFives'), icon: const Text('✋'), label: Text('${p.highFives}')),
+															TextButton.icon(onPressed: () => _service.react(id: p.id, field: 'hugs'), icon: const Text('🤗'), label: Text('${p.hugs}')),
+															TextButton.icon(onPressed: () => _service.react(id: p.id, field: 'highFives'), icon: const Text('✋'), label: Text('${p.highFives}')),
 													],
 												),
 											],

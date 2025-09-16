@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'dart:math';
 
 class MemoryMatchScreen extends StatefulWidget {
@@ -21,10 +22,12 @@ class _MemoryMatchScreenState extends State<MemoryMatchScreen> {
 	}
 
 	void _reset() {
-		final icons = [Icons.star, Icons.favorite, Icons.pets, Icons.emoji_emotions, Icons.beach_access, Icons.catching_pokemon];
-		final pairs = [...icons.take(6), ...icons.take(6)];
+		final icons = [
+			Icons.star, Icons.favorite, Icons.pets, Icons.emoji_emotions, Icons.beach_access, Icons.catching_pokemon, Icons.coffee, Icons.music_note
+		];
+		final pairs = [...icons.take(8), ...icons.take(8)];
 		pairs.shuffle(Random());
-		_cards = List.generate(12, (i) => _CardModel(icon: pairs[i]));
+		_cards = List.generate(16, (i) => _CardModel(icon: pairs[i]));
 		_first = null;
 		_second = null;
 		_busy = false;
@@ -35,20 +38,26 @@ class _MemoryMatchScreenState extends State<MemoryMatchScreen> {
 		if (_busy) return;
 		final card = _cards[index];
 		if (card.matched || card.flipped) return;
+		
+		HapticFeedback.lightImpact();
 		setState(() => card.flipped = true);
+		
 		if (_first == null) {
 			_first = card;
 			return;
 		}
 		_second = card;
 		_busy = true;
-		await Future.delayed(const Duration(milliseconds: 700));
+		await Future.delayed(const Duration(milliseconds: 500));
+		
 		if (_first!.icon == _second!.icon) {
+			HapticFeedback.mediumImpact();
 			setState(() {
 				_first!.matched = true;
 				_second!.matched = true;
 			});
 		} else {
+			HapticFeedback.heavyImpact();
 			setState(() {
 				_first!.flipped = false;
 				_second!.flipped = false;
@@ -59,7 +68,8 @@ class _MemoryMatchScreenState extends State<MemoryMatchScreen> {
 		_busy = false;
 		if (_cards.every((c) => c.matched)) {
 			if (!mounted) return;
-			ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Great job!')));
+			HapticFeedback.heavyImpact();
+			ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Great job! 🎉')));
 		}
 	}
 
@@ -71,23 +81,27 @@ class _MemoryMatchScreenState extends State<MemoryMatchScreen> {
 				children: [
 					Expanded(
 						child: GridView.builder(
-							padding: const EdgeInsets.all(16),
-							gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(crossAxisCount: 3, mainAxisSpacing: 12, crossAxisSpacing: 12),
+							padding: const EdgeInsets.all(12),
+							gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+								crossAxisCount: 4, mainAxisSpacing: 10, crossAxisSpacing: 10,
+								childAspectRatio: 0.8,
+							),
 							itemCount: _cards.length,
 							itemBuilder: (context, i) {
 								final c = _cards[i];
 								return GestureDetector(
 									onTap: () => _tap(i),
 									child: AnimatedContainer(
-										duration: const Duration(milliseconds: 250),
+										duration: const Duration(milliseconds: 220),
 										decoration: BoxDecoration(
 											color: c.matched
-												? Colors.green.withOpacity(0.7)
+												? Colors.green.withValues(alpha: 0.7)
 												: (c.flipped ? Theme.of(context).colorScheme.primaryContainer : Theme.of(context).colorScheme.surfaceContainerHighest),
-											borderRadius: BorderRadius.circular(12),
+											borderRadius: BorderRadius.circular(10),
+											boxShadow: const [BoxShadow(color: Colors.black12, blurRadius: 4, offset: Offset(0,2))],
 										),
 									child: Center(
-										child: Icon(c.flipped || c.matched ? c.icon : Icons.help_outline),
+										child: Icon(c.flipped || c.matched ? c.icon : Icons.help_outline, size: 26),
 									),
 								),
 							);
@@ -95,7 +109,7 @@ class _MemoryMatchScreenState extends State<MemoryMatchScreen> {
 						),
 					),
 					Padding(
-						padding: const EdgeInsets.all(12),
+						padding: const EdgeInsets.all(8),
 						child: ElevatedButton.icon(onPressed: _reset, icon: const Icon(Icons.refresh), label: const Text('Reset')),
 					),
 				],

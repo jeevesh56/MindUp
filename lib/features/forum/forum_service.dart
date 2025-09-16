@@ -4,8 +4,10 @@ import 'models/forum_post.dart';
 
 class ForumService {
 	final String _collection;
-
 	ForumService({String collection = 'forum_posts'}) : _collection = collection;
+
+	// Simple in-memory queue for offline posts
+	static final List<ForumPost> _offlineQueue = <ForumPost>[];
 
 	FirebaseFirestore? _dbOrNull() {
 		if (!FirebaseReadiness.isInitialized) return null;
@@ -25,10 +27,23 @@ class ForumService {
 
 	Future<void> createPost({required String content, required String authorUid}) async {
 		final col = _colOrNull();
-		if (col == null) return;
-		final id = col.doc().id;
-		final post = ForumPost(id: id, authorUid: authorUid, content: content, createdAt: DateTime.now());
-		await col.doc(id).set(post.toMap());
+		final post = ForumPost(id: DateTime.now().millisecondsSinceEpoch.toString(), authorUid: authorUid, content: content, createdAt: DateTime.now());
+		if (col == null) {
+			_offlineQueue.add(post);
+			return;
+		}
+		await col.doc(post.id).set(post.toMap());
+		// Try flush any offline posts
+		await _flushOffline(col);
+	}
+
+	Future<void> _flushOffline(CollectionReference<Map<String, dynamic>> col) async {
+		if (_offlineQueue.isEmpty) return;
+		final copy = List<ForumPost>.from(_offlineQueue);
+		for (final p in copy) {
+			await col.doc(p.id).set(p.toMap());
+			_offlineQueue.remove(p);
+		}
 	}
 
 	Future<void> react({required String id, required String field}) async {
