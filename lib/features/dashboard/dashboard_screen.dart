@@ -124,11 +124,14 @@ class _DashboardScreenState extends State<DashboardScreen> with TickerProviderSt
 	}
 
 	String _getMoodEmoji(int score) {
-		if (score <= 2) return '😢';
-		if (score <= 4) return '😔';
-		if (score <= 6) return '😐';
-		if (score <= 8) return '😊';
-		return '😄';
+		// Exact mapping 1-5 to match popup emojis
+		switch (score) {
+			case 1: return '😢';
+			case 2: return '😔';
+			case 3: return '😐';
+			case 4: return '😊';
+			default: return '😄';
+		}
 	}
 
 	@override
@@ -389,7 +392,10 @@ class _MoodPopup extends StatelessWidget {
 		return Material(
 			color: Colors.black.withValues(alpha: 0.5),
 			child: Center(
-					child: Container(
+					child: AnimatedScale(
+						duration: const Duration(milliseconds: 180),
+						scale: 1,
+						child: Container(
 						width: 280,
 						height: 280,
 						padding: const EdgeInsets.all(16),
@@ -408,19 +414,19 @@ class _MoodPopup extends StatelessWidget {
 							mainAxisAlignment: MainAxisAlignment.spaceBetween,
 							children: [
 								Text('How are you feeling?', style: Theme.of(context).textTheme.titleMedium),
-								Wrap(
-									spacing: 8,
-									runSpacing: 8,
-									children: [
-										_MoodEmoji(emoji: '😢', score: 1, onTap: () => onMoodSelected(1)),
-										_MoodEmoji(emoji: '😔', score: 2, onTap: () => onMoodSelected(2)),
-										_MoodEmoji(emoji: '😐', score: 3, onTap: () => onMoodSelected(3)),
-										_MoodEmoji(emoji: '😊', score: 4, onTap: () => onMoodSelected(4)),
-										_MoodEmoji(emoji: '😄', score: 5, onTap: () => onMoodSelected(5)),
-									],
-								),
+									Row(
+										mainAxisAlignment: MainAxisAlignment.spaceBetween,
+										children: [
+											_MoodEmoji(emoji: '😢', score: 1, onTap: () => onMoodSelected(1)),
+											_MoodEmoji(emoji: '😔', score: 2, onTap: () => onMoodSelected(2)),
+											_MoodEmoji(emoji: '😐', score: 3, onTap: () => onMoodSelected(3)),
+											_MoodEmoji(emoji: '😊', score: 4, onTap: () => onMoodSelected(4)),
+											_MoodEmoji(emoji: '😄', score: 5, onTap: () => onMoodSelected(5)),
+										],
+									),
 								Align(alignment: Alignment.centerRight, child: TextButton(onPressed: onClose, child: const Text('Skip'))),
 							],
+						),
 						),
 					),
 			),
@@ -443,16 +449,27 @@ class _MoodEmoji extends StatelessWidget {
 				onTap();
 			},
 			borderRadius: BorderRadius.circular(12),
-			child: Container(
-				width: 54,
-				height: 54,
-				decoration: BoxDecoration(
-					color: Theme.of(context).colorScheme.primaryContainer,
-					borderRadius: BorderRadius.circular(12),
-				),
-				child: Center(
-					child: Text(emoji, style: const TextStyle(fontSize: 28)),
-				),
+			child: TweenAnimationBuilder<double>(
+				duration: const Duration(milliseconds: 160),
+				tween: Tween(begin: 1.0, end: 1.0),
+				builder: (context, scale, child) {
+					return AnimatedContainer(
+						duration: const Duration(milliseconds: 150),
+						curve: Curves.easeOut,
+						width: 54,
+						height: 54,
+						decoration: BoxDecoration(
+							color: Theme.of(context).colorScheme.primaryContainer,
+							borderRadius: BorderRadius.circular(12),
+							boxShadow: [
+								BoxShadow(color: Colors.black.withValues(alpha: 0.06), blurRadius: 6, offset: const Offset(0, 2)),
+							],
+						),
+						child: Center(
+							child: AnimatedScale(duration: const Duration(milliseconds: 120), scale: 1.0, child: Text(emoji, style: const TextStyle(fontSize: 28))),
+						),
+					);
+				},
 			),
 		);
 	}

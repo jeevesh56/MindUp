@@ -15,6 +15,7 @@ class _ForumScreenState extends State<ForumScreen> {
 	final AuthService _auth = AuthService();
 	final TextEditingController _controller = TextEditingController();
 	String? _uid;
+	bool _postAnonymously = true;
 
 	@override
 	void initState() {
@@ -28,17 +29,19 @@ class _ForumScreenState extends State<ForumScreen> {
 		super.dispose();
 	}
 
-	Future<void> _post() async {
+Future<void> _post() async {
 		final text = _controller.text.trim();
 		if (text.isEmpty) return;
-		final author = _uid ?? 'anonymous';
+		final author = _postAnonymously ? 'anonymous' : (_uid ?? 'anonymous');
 		await _service.createPost(content: text, authorUid: author);
 		_controller.clear();
 	}
 
 	@override
 	Widget build(BuildContext context) {
-		final alias = _uid == null ? 'Anonymous' : AuthService().aliasForUid(_uid!);
+		final alias = _postAnonymously
+			? 'Anonymous'
+			: (_uid == null ? 'Anonymous' : AuthService().aliasForUid(_uid!));
 		return Column(
 			children: [
 				Padding(
@@ -47,20 +50,33 @@ class _ForumScreenState extends State<ForumScreen> {
 						shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
 						child: Padding(
 							padding: const EdgeInsets.all(12),
-							child: Row(
+							child: Column(
+								crossAxisAlignment: CrossAxisAlignment.stretch,
 								children: [
-									CircleAvatar(child: Text(alias.split(' ').last.substring(0,1))),
-									const SizedBox(width: 12),
-									Expanded(
-										child: TextField(
-											controller: _controller,
-											maxLines: 3,
-											minLines: 1,
-											decoration: InputDecoration(hintText: 'Share a thought or ask a question…', filled: true, fillColor: Theme.of(context).colorScheme.surfaceContainerHighest, border: OutlineInputBorder(borderRadius: BorderRadius.circular(12), borderSide: BorderSide.none)),
-										),
+									Row(
+										children: [
+											CircleAvatar(child: Text(alias.split(' ').last.substring(0,1))),
+											const SizedBox(width: 12),
+											Expanded(
+												child: TextField(
+													controller: _controller,
+													maxLines: 3,
+													minLines: 1,
+													decoration: InputDecoration(hintText: 'Share a thought or ask a question…', filled: true, fillColor: Theme.of(context).colorScheme.surfaceContainerHighest, border: OutlineInputBorder(borderRadius: BorderRadius.circular(12), borderSide: BorderSide.none)),
+												),
+											),
+											const SizedBox(width: 8),
+											FilledButton.icon(onPressed: _post, icon: const Icon(Icons.send), label: const Text('Post')),
+										],
 									),
-									const SizedBox(width: 8),
-									FilledButton.icon(onPressed: _post, icon: const Icon(Icons.send), label: const Text('Post')),
+									const SizedBox(height: 8),
+									Row(
+										mainAxisAlignment: MainAxisAlignment.end,
+										children: [
+											Switch(value: _postAnonymously, onChanged: (v) => setState(() => _postAnonymously = v)),
+											const Text('Post anonymously'),
+										],
+									),
 								],
 							),
 						),
@@ -80,7 +96,7 @@ class _ForumScreenState extends State<ForumScreen> {
 								separatorBuilder: (_, __) => const SizedBox(height: 8),
 								itemBuilder: (context, i) {
 									final p = posts[i];
-									final a = AuthService().aliasForUid(p.authorUid);
+									final a = p.authorUid == 'anonymous' ? 'Anonymous' : AuthService().aliasForUid(p.authorUid);
 								return Card(
 									shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
 									child: Padding(

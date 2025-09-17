@@ -19,8 +19,8 @@ class GamesHubScreen extends StatelessWidget {
 		return GridView.count(
 			padding: const EdgeInsets.all(16),
 			crossAxisCount: 2,
-			mainAxisSpacing: 12,
-			crossAxisSpacing: 12,
+			mainAxisSpacing: 6,
+			crossAxisSpacing: 6,
 			children: [
 				_GameCard(
 					icon: Icons.palette,
@@ -57,19 +57,30 @@ class _GameCard extends StatelessWidget {
 		return InkWell(
 			onTap: onTap,
 			borderRadius: BorderRadius.circular(16),
-			child: Container(
-				padding: const EdgeInsets.all(16),
-				decoration: BoxDecoration(color: background, borderRadius: BorderRadius.circular(16), boxShadow: [
-					BoxShadow(color: Colors.black.withValues(alpha: 0.05), blurRadius: 8, offset: const Offset(0, 4)),
-				]),
-				child: Column(
-					mainAxisAlignment: MainAxisAlignment.center,
-					children: [
-						Icon(icon, size: 28),
-						const SizedBox(height: 8),
-						Text(title, style: Theme.of(context).textTheme.bodyMedium, textAlign: TextAlign.center),
-					],
-				),
+			child: TweenAnimationBuilder<double>(
+				duration: const Duration(milliseconds: 320),
+				tween: Tween(begin: 0.9, end: 1.0),
+				curve: Curves.easeOutBack,
+				builder: (context, scale, _) {
+					return Transform.scale(
+						scale: scale,
+						child: Container(
+							height: 78,
+							padding: const EdgeInsets.all(10),
+							decoration: BoxDecoration(color: background, borderRadius: BorderRadius.circular(14), boxShadow: [
+								BoxShadow(color: Colors.black.withValues(alpha: 0.05), blurRadius: 8, offset: const Offset(0, 4)),
+							]),
+							child: Column(
+								mainAxisAlignment: MainAxisAlignment.center,
+								children: [
+									Icon(icon, size: 20),
+									const SizedBox(height: 4),
+									Text(title, style: Theme.of(context).textTheme.bodySmall, textAlign: TextAlign.center, maxLines: 1, overflow: TextOverflow.ellipsis),
+								],
+							),
+						),
+					);
+				},
 			),
 		);
 	}

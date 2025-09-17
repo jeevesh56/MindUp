@@ -86,7 +86,6 @@ class _HomeShellState extends State<_HomeShell> {
 		DashboardScreen(),
 		const ChatbotScreen(),
 		const MoodTrackerScreen(),
-		const GamesHubScreen(),
 		const ForumScreen(),
 	];
 
@@ -95,7 +94,7 @@ class _HomeShellState extends State<_HomeShell> {
 		return Scaffold(
 			appBar: AppBar(
 				title: Text(
-					['Dashboard','Chatbot','Mood','Games','Forum'][_selectedIndex],
+					['Dashboard','Chatbot','Mood','Forum'][_selectedIndex],
 					style: Theme.of(context).textTheme.titleLarge,
 				),
 			),
@@ -140,6 +139,14 @@ class _HomeShellState extends State<_HomeShell> {
 								},
 							),
 							ListTile(
+								leading: const Icon(Icons.videogame_asset_outlined),
+								title: const Text('Games'),
+								onTap: () {
+									Navigator.of(context).pop();
+									Navigator.of(context).push(MaterialPageRoute(builder: (_) => const GamesHubScreen()));
+								},
+							),
+							ListTile(
 								leading: const Icon(Icons.sos_outlined),
 								title: const Text('SOS Help'),
 								onTap: () {
@@ -171,7 +178,6 @@ class _HomeShellState extends State<_HomeShell> {
 					NavigationDestination(icon: Icon(Icons.dashboard_outlined), selectedIcon: Icon(Icons.dashboard), label: 'Home'),
 					NavigationDestination(icon: Icon(Icons.smart_toy_outlined), selectedIcon: Icon(Icons.smart_toy), label: 'Chatbot'),
 					NavigationDestination(icon: Icon(Icons.mood_outlined), selectedIcon: Icon(Icons.mood), label: 'Mood'),
-					NavigationDestination(icon: Icon(Icons.videogame_asset_outlined), selectedIcon: Icon(Icons.videogame_asset), label: 'Games'),
 					NavigationDestination(icon: Icon(Icons.forum_outlined), selectedIcon: Icon(Icons.forum), label: 'Forum'),
 				],
 			),

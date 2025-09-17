@@ -6,8 +6,21 @@ class ChatMessage {
 	final String role; // 'user' or 'bot'
 	final String text;
 	final DateTime timestamp;
+	final String? emotionLabel;
+	final String? sourceLabel; // Rasa, Dialogflow, Assistant
 
-	ChatMessage({required this.id, required this.role, required this.text, required this.timestamp});
+	ChatMessage({required this.id, required this.role, required this.text, required this.timestamp, this.emotionLabel, this.sourceLabel});
+
+	ChatMessage copyWith({String? id, String? role, String? text, DateTime? timestamp, String? emotionLabel, String? sourceLabel}) {
+		return ChatMessage(
+			id: id ?? this.id,
+			role: role ?? this.role,
+			text: text ?? this.text,
+			timestamp: timestamp ?? this.timestamp,
+			emotionLabel: emotionLabel ?? this.emotionLabel,
+			sourceLabel: sourceLabel ?? this.sourceLabel,
+		);
+	}
 }
 
 class ChatbotService {
@@ -33,12 +46,28 @@ class ChatbotService {
 			if (res.statusCode >= 200 && res.statusCode < 300) {
 				final data = jsonDecode(res.body);
 				// Expecting { reply: "..." }
-				return (data['reply'] as String?)?.trim().isNotEmpty == true ? data['reply'] : 'I am here for you. Tell me more.';
+				final candidate = (data['reply'] as String?)?.trim();
+				if (candidate != null && candidate.isNotEmpty) return candidate;
+				return _rotatingFallback();
 			}
-			return 'I am here for you. Tell me more.';
+			return _rotatingFallback();
 		} catch (_) {
-			return 'I am here for you. Tell me more.';
+			return _rotatingFallback();
 		}
+	}
+
+	int _fallbackIndex = 0;
+	static const List<String> _fallbacks = [
+		"I'm here for you. Tell me more about what's on your mind.",
+		"That sounds tough. Would you like to try a breathing exercise?",
+		"Thanks for sharing. What would help you feel 1% better right now?",
+		"I hear you. Would you like to see campus resources or SOS options?",
+	];
+
+	String _rotatingFallback() {
+		final reply = _fallbacks[_fallbackIndex % _fallbacks.length];
+		_fallbackIndex++;
+		return reply;
 	}
 }
 
