@@ -72,28 +72,38 @@ class _ChatbotScreenState extends State<ChatbotScreen> {
 		return Column(
 			children: [
 				Expanded(
-					child: ListView.builder(
-						padding: const EdgeInsets.all(12),
-						itemCount: _messages.length,
-						itemBuilder: (context, index) {
-							final m = _messages[index];
-							final isUser = m.role == 'user';
-							return Align(
-								alignment: isUser ? Alignment.centerRight : Alignment.centerLeft,
-								child: Container(
-									margin: const EdgeInsets.symmetric(vertical: 6),
-									padding: const EdgeInsets.symmetric(vertical: 10, horizontal: 12),
-									decoration: BoxDecoration(
-										color: isUser ? Theme.of(context).colorScheme.primary : Theme.of(context).colorScheme.surfaceContainerHighest,
-										borderRadius: BorderRadius.circular(12),
+					child: Container(
+						margin: const EdgeInsets.all(12),
+						decoration: BoxDecoration(
+							borderRadius: BorderRadius.circular(16),
+							border: Border.all(color: Theme.of(context).colorScheme.outlineVariant),
+						),
+						child: ListView.builder(
+							padding: const EdgeInsets.all(12),
+							itemCount: _messages.length,
+							itemBuilder: (context, index) {
+								final m = _messages[index];
+								final isUser = m.role == 'user';
+								return Align(
+									alignment: isUser ? Alignment.centerRight : Alignment.centerLeft,
+									child: Container(
+										margin: const EdgeInsets.symmetric(vertical: 6),
+										padding: const EdgeInsets.symmetric(vertical: 10, horizontal: 12),
+										decoration: BoxDecoration(
+											color: isUser ? Theme.of(context).colorScheme.primary : Theme.of(context).colorScheme.surfaceContainerHighest,
+											borderRadius: BorderRadius.circular(12),
+											boxShadow: [
+												BoxShadow(color: Colors.black.withValues(alpha: 0.06), blurRadius: 6, offset: const Offset(0, 2)),
+											],
+										),
+										child: Text(
+											m.text,
+											style: TextStyle(color: isUser ? Colors.white : Theme.of(context).colorScheme.onSurfaceVariant),
+										),
 									),
-									child: Text(
-										m.text,
-										style: TextStyle(color: isUser ? Colors.white : Theme.of(context).colorScheme.onSurfaceVariant),
-									),
-								),
-							);
-						},
+								);
+							},
+						),
 					),
 				),
 				SafeArea(
@@ -102,20 +112,23 @@ class _ChatbotScreenState extends State<ChatbotScreen> {
 						child: Row(
 							children: [
 								Expanded(
-									child: TextField(
+							child: TextField(
 										controller: _controller,
-										decoration: const InputDecoration(
-											hintText: 'Type your message…',
-											border: OutlineInputBorder(),
-										),
+								decoration: InputDecoration(
+									hintText: 'Type your message…',
+									filled: true,
+									fillColor: Theme.of(context).colorScheme.surfaceContainerHighest,
+									border: OutlineInputBorder(borderRadius: BorderRadius.circular(12), borderSide: BorderSide.none),
+								),
 										onSubmitted: (_) => _send(),
 									),
 								),
 								const SizedBox(width: 8),
-								IconButton(
-									icon: _sending ? const SizedBox(width: 24, height: 24, child: CircularProgressIndicator(strokeWidth: 2)) : const Icon(Icons.send),
-									onPressed: _sending ? null : _send,
-								),
+						FilledButton.icon(
+							icon: _sending ? const SizedBox(width: 18, height: 18, child: CircularProgressIndicator(strokeWidth: 2)) : const Icon(Icons.send),
+							label: const Text('Send'),
+							onPressed: _sending ? null : _send,
+						),
 							],
 						),
 					),

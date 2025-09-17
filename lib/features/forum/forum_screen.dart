@@ -42,22 +42,28 @@ class _ForumScreenState extends State<ForumScreen> {
 		return Column(
 			children: [
 				Padding(
-					padding: const EdgeInsets.all(12),
-					child: Row(
-						children: [
-							CircleAvatar(child: Text(alias.split(' ').last.substring(0,1))),
-							const SizedBox(width: 12),
-							Expanded(
-								child: TextField(
-									controller: _controller,
-									maxLines: 3,
-									minLines: 1,
-									decoration: const InputDecoration(hintText: 'Share a thought or ask a question…', border: OutlineInputBorder()),
-								),
+					padding: const EdgeInsets.fromLTRB(12, 12, 12, 6),
+					child: Card(
+						shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+						child: Padding(
+							padding: const EdgeInsets.all(12),
+							child: Row(
+								children: [
+									CircleAvatar(child: Text(alias.split(' ').last.substring(0,1))),
+									const SizedBox(width: 12),
+									Expanded(
+										child: TextField(
+											controller: _controller,
+											maxLines: 3,
+											minLines: 1,
+											decoration: InputDecoration(hintText: 'Share a thought or ask a question…', filled: true, fillColor: Theme.of(context).colorScheme.surfaceContainerHighest, border: OutlineInputBorder(borderRadius: BorderRadius.circular(12), borderSide: BorderSide.none)),
+										),
+									),
+									const SizedBox(width: 8),
+									FilledButton.icon(onPressed: _post, icon: const Icon(Icons.send), label: const Text('Post')),
+								],
 							),
-							const SizedBox(width: 8),
-							ElevatedButton(onPressed: _post, child: const Text('Post')),
-						],
+						),
 					),
 				),
 				Expanded(
@@ -75,17 +81,18 @@ class _ForumScreenState extends State<ForumScreen> {
 								itemBuilder: (context, i) {
 									final p = posts[i];
 									final a = AuthService().aliasForUid(p.authorUid);
-									return Card(
-										child: Padding(
-											padding: const EdgeInsets.all(12),
-											child: Column(
+								return Card(
+									shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+									child: Padding(
+										padding: const EdgeInsets.all(12),
+										child: Column(
 												crossAxisAlignment: CrossAxisAlignment.start,
 												children: [
 													Row(
 														children: [
 															CircleAvatar(child: Text(a.split('#').last)),
 															const SizedBox(width: 8),
-															Text(a, style: Theme.of(context).textTheme.labelLarge),
+														Expanded(child: Text(a, style: Theme.of(context).textTheme.labelLarge)),
 													],
 													),
 													const SizedBox(height: 8),
@@ -93,8 +100,9 @@ class _ForumScreenState extends State<ForumScreen> {
 													const SizedBox(height: 8),
 													Row(
 														children: [
-															TextButton.icon(onPressed: () => _service.react(id: p.id, field: 'hugs'), icon: const Text('🤗'), label: Text('${p.hugs}')),
-															TextButton.icon(onPressed: () => _service.react(id: p.id, field: 'highFives'), icon: const Text('✋'), label: Text('${p.highFives}')),
+														OutlinedButton.icon(onPressed: () => _service.react(id: p.id, field: 'hugs'), icon: const Text('🤗'), label: Text('${p.hugs}')),
+														const SizedBox(width: 8),
+														OutlinedButton.icon(onPressed: () => _service.react(id: p.id, field: 'highFives'), icon: const Text('✋'), label: Text('${p.highFives}')),
 													],
 												),
 											],
