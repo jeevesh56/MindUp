@@ -12,7 +12,6 @@ import '../games/games_hub_screen.dart';
 import '../forum/forum_screen.dart';
 import '../mood/mood_tracker_screen.dart';
 import 'mental_health_dashboard.dart';
-import '../assessments/assessments_screen.dart';
 
 class DashboardScreen extends StatefulWidget {
 	const DashboardScreen({super.key});
@@ -27,9 +26,6 @@ class _DashboardScreenState extends State<DashboardScreen> with TickerProviderSt
 	late AnimationController _pulseController;
 	late AnimationController _sparkleController;
 	bool _showMoodPopup = false;
-	static const String _prefsPopupLastShown = 'dashboard_popup_last_shown';
-	static const String _prefsLowMoodDate = 'low_mood_date';
-	static const String _prefsLowMoodCount = 'low_mood_count';
 
 	@override
 	void initState() {
@@ -49,11 +45,9 @@ class _DashboardScreenState extends State<DashboardScreen> with TickerProviderSt
 
 	Future<void> _checkFirstVisit() async {
 		final prefs = await SharedPreferences.getInstance();
-		final todayKey = DateTime.now();
-		final todayStr = '${todayKey.year}-${todayKey.month}-${todayKey.day}';
-		final lastShown = prefs.getString(_prefsPopupLastShown);
-		if (lastShown != todayStr) {
-			await prefs.setString(_prefsPopupLastShown, todayStr);
+		final hasVisited = prefs.getBool('dashboard_visited') ?? false;
+		if (!hasVisited) {
+			await prefs.setBool('dashboard_visited', true);
 			await Future.delayed(const Duration(milliseconds: 500));
 			if (mounted) setState(() => _showMoodPopup = true);
 		}
@@ -81,7 +75,6 @@ class _DashboardScreenState extends State<DashboardScreen> with TickerProviderSt
 		HapticFeedback.lightImpact();
 		await _moodService.addMood(score: score);
 		await _refreshStreaks();
-		await _maybeTriggerSos(score);
 		if (mounted) {
 			ScaffoldMessenger.of(context).showSnackBar(
 				SnackBar(content: Text('Mood logged: ${_getMoodEmoji(score)}'), duration: const Duration(seconds: 1)),
@@ -89,49 +82,12 @@ class _DashboardScreenState extends State<DashboardScreen> with TickerProviderSt
 		}
 	}
 
-	Future<void> _maybeTriggerSos(int score) async {
-		if (score > 2) return;
-		final prefs = await SharedPreferences.getInstance();
-		final now = DateTime.now();
-		final todayStr = '${now.year}-${now.month}-${now.day}';
-		final lastDate = prefs.getString(_prefsLowMoodDate);
-		int count = prefs.getInt(_prefsLowMoodCount) ?? 0;
-		if (lastDate != todayStr) {
-			count = 0;
-		}
-		count += 1;
-		await prefs.setString(_prefsLowMoodDate, todayStr);
-		await prefs.setInt(_prefsLowMoodCount, count);
-		if (count >= 2 && mounted) {
-			await Future.delayed(const Duration(milliseconds: 300));
-			if (!mounted) return;
-			// Soft prompt to open SOS resources
-			final proceed = await showDialog<bool>(
-				context: context,
-				builder: (ctx) => AlertDialog(
-					title: const Text('Support available'),
-					content: const Text('We noticed you logged a very low mood multiple times today. Would you like quick access to support resources?'),
-					actions: [
-						TextButton(onPressed: () => Navigator.of(ctx).pop(false), child: const Text('Not now')),
-						FilledButton(onPressed: () => Navigator.of(ctx).pop(true), child: const Text('Open SOS')),
-					],
-				),
-			);
-			if (proceed == true && mounted) {
-				Navigator.of(context).pushNamed('/sos');
-			}
-		}
-	}
-
 	String _getMoodEmoji(int score) {
-		// Exact mapping 1-5 to match popup emojis
-		switch (score) {
-			case 1: return '😢';
-			case 2: return '😔';
-			case 3: return '😐';
-			case 4: return '😊';
-			default: return '😄';
-		}
+		if (score <= 2) return '😢';
+		if (score <= 4) return '😔';
+		if (score <= 6) return '😐';
+		if (score <= 8) return '😊';
+		return '😄';
 	}
 
 	@override
@@ -276,7 +232,6 @@ class _DashboardScreenState extends State<DashboardScreen> with TickerProviderSt
 								_ActionButton(icon: Icons.local_florist, label: 'Garden', onTap: ()=> Navigator.of(context).push(MaterialPageRoute(builder: (_)=>const MoodGardenScreen()))),
 								_ActionButton(icon: Icons.videogame_asset, label: 'Games', onTap: ()=> Navigator.of(context).push(MaterialPageRoute(builder: (_)=>const GamesHubScreen()))),
 								_ActionButton(icon: Icons.forum, label: 'Forum', onTap: ()=> Navigator.of(context).push(MaterialPageRoute(builder: (_)=>const ForumScreen()))),
-						_ActionButton(icon: Icons.assignment_turned_in, label: 'Assessments', onTap: ()=> Navigator.of(context).push(MaterialPageRoute(builder: (_)=> const AssessmentsScreen()))),
 							_ActionButton(icon: Icons.dashboard_customize, label: 'New Dashboard', onTap: ()=> Navigator.of(context).push(MaterialPageRoute(builder: (_)=> const ExperimentalMentalHealthDashboard()))),
 							],
 						).animate().fadeIn(duration: 1400.ms).slideY(begin: 0.2),
@@ -392,43 +347,41 @@ class _MoodPopup extends StatelessWidget {
 		return Material(
 			color: Colors.black.withValues(alpha: 0.5),
 			child: Center(
-					child: AnimatedScale(
-						duration: const Duration(milliseconds: 180),
-						scale: 1,
-						child: Container(
-						width: 280,
-						height: 280,
-						padding: const EdgeInsets.all(16),
-						decoration: BoxDecoration(
-							color: Theme.of(context).colorScheme.surface,
-							borderRadius: BorderRadius.circular(16),
-							boxShadow: [
-								BoxShadow(
-									color: Colors.black.withValues(alpha: 0.14),
-									blurRadius: 16,
-									offset: const Offset(0, 8),
-								),
-							],
-						),
-						child: Column(
-							mainAxisAlignment: MainAxisAlignment.spaceBetween,
-							children: [
-								Text('How are you feeling?', style: Theme.of(context).textTheme.titleMedium),
-									Row(
-										mainAxisAlignment: MainAxisAlignment.spaceBetween,
-										children: [
-											_MoodEmoji(emoji: '😢', score: 1, onTap: () => onMoodSelected(1)),
-											_MoodEmoji(emoji: '😔', score: 2, onTap: () => onMoodSelected(2)),
-											_MoodEmoji(emoji: '😐', score: 3, onTap: () => onMoodSelected(3)),
-											_MoodEmoji(emoji: '😊', score: 4, onTap: () => onMoodSelected(4)),
-											_MoodEmoji(emoji: '😄', score: 5, onTap: () => onMoodSelected(5)),
-										],
-									),
-								Align(alignment: Alignment.centerRight, child: TextButton(onPressed: onClose, child: const Text('Skip'))),
-							],
-						),
-						),
+				child: Container(
+					margin: const EdgeInsets.all(24),
+					padding: const EdgeInsets.all(24),
+					decoration: BoxDecoration(
+						color: Theme.of(context).colorScheme.surface,
+						borderRadius: BorderRadius.circular(20),
+						boxShadow: [
+							BoxShadow(
+								color: Colors.black.withValues(alpha: 0.2),
+								blurRadius: 20,
+								offset: const Offset(0, 10),
+							),
+						],
 					),
+					child: Column(
+						mainAxisSize: MainAxisSize.min,
+						children: [
+							Text('How are you feeling?', style: Theme.of(context).textTheme.headlineSmall),
+							const SizedBox(height: 20),
+							Wrap(
+								spacing: 16,
+								runSpacing: 16,
+								children: [
+									_MoodEmoji(emoji: '😢', score: 1, onTap: () => onMoodSelected(1)),
+									_MoodEmoji(emoji: '😔', score: 2, onTap: () => onMoodSelected(2)),
+									_MoodEmoji(emoji: '😐', score: 3, onTap: () => onMoodSelected(3)),
+									_MoodEmoji(emoji: '😊', score: 4, onTap: () => onMoodSelected(4)),
+									_MoodEmoji(emoji: '😄', score: 5, onTap: () => onMoodSelected(5)),
+								],
+							),
+							const SizedBox(height: 20),
+							TextButton(onPressed: onClose, child: const Text('Skip for now')),
+						],
+					),
+				),
 			),
 		);
 	}
@@ -449,27 +402,16 @@ class _MoodEmoji extends StatelessWidget {
 				onTap();
 			},
 			borderRadius: BorderRadius.circular(12),
-			child: TweenAnimationBuilder<double>(
-				duration: const Duration(milliseconds: 160),
-				tween: Tween(begin: 1.0, end: 1.0),
-				builder: (context, scale, child) {
-					return AnimatedContainer(
-						duration: const Duration(milliseconds: 150),
-						curve: Curves.easeOut,
-						width: 54,
-						height: 54,
-						decoration: BoxDecoration(
-							color: Theme.of(context).colorScheme.primaryContainer,
-							borderRadius: BorderRadius.circular(12),
-							boxShadow: [
-								BoxShadow(color: Colors.black.withValues(alpha: 0.06), blurRadius: 6, offset: const Offset(0, 2)),
-							],
-						),
-						child: Center(
-							child: AnimatedScale(duration: const Duration(milliseconds: 120), scale: 1.0, child: Text(emoji, style: const TextStyle(fontSize: 28))),
-						),
-					);
-				},
+			child: Container(
+				width: 60,
+				height: 60,
+				decoration: BoxDecoration(
+					color: Theme.of(context).colorScheme.primaryContainer,
+					borderRadius: BorderRadius.circular(12),
+				),
+				child: Center(
+					child: Text(emoji, style: const TextStyle(fontSize: 32)),
+				),
 			),
 		);
 	}
