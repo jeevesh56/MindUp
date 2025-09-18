@@ -5,7 +5,7 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:stress_app/app.dart';
 
 void main() {
-  testWidgets('App loads and shows Chatbot tab title', (WidgetTester tester) async {
+    testWidgets('App loads and shows Chatbot tab title', (WidgetTester tester) async {
     await tester.pumpWidget(const StressApp());
 
     // Verify initial app bar title is Chatbot
