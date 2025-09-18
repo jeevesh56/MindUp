@@ -327,6 +327,7 @@ class _DashboardScreenState extends State<DashboardScreen>
       ],
     );
   }
+
 }
 
 class _InteractiveCard extends StatelessWidget {
