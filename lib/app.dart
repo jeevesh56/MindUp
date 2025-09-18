@@ -9,6 +9,7 @@ import 'features/resources/resources_screen.dart';
 import 'features/settings/settings_screen.dart';
 import 'features/sos/sos_help_screen.dart';
 import 'features/forum/forum_screen.dart';
+import 'features/games/games_hub_screen.dart';
 import 'utils/theme_controller.dart';
 
 class StressApp extends StatelessWidget {
@@ -148,6 +149,16 @@ class _HomeShellState extends State<_HomeShell> {
                   Navigator.pop(context);
                   Navigator.of(context).push(
                     MaterialPageRoute(builder: (_) => const ResourcesScreen()),
+                  );
+                },
+              ),
+              ListTile(
+                leading: const Icon(Icons.videogame_asset_outlined),
+                title: const Text('Games'),
+                onTap: () {
+                  Navigator.pop(context);
+                  Navigator.of(context).push(
+                    MaterialPageRoute(builder: (_) => const GamesHubScreen()),
                   );
                 },
               ),
