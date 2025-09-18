@@ -48,7 +48,7 @@ Future<void> _post() async {
 				Container(
 					padding: const EdgeInsets.all(16),
 					decoration: BoxDecoration(
-						color: Theme.of(context).colorScheme.primaryContainer.withOpacity(0.3),
+						color: Theme.of(context).colorScheme.primaryContainer.withValues(alpha: 0.3),
 						borderRadius: const BorderRadius.only(
 							bottomLeft: Radius.circular(20),
 							bottomRight: Radius.circular(20),

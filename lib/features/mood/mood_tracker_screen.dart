@@ -118,9 +118,9 @@ class _MoodTrackerScreenState extends State<MoodTrackerScreen> {
 			child: Container(
 				padding: const EdgeInsets.symmetric(vertical: 10, horizontal: 12),
 				decoration: BoxDecoration(
-					color: mood['color'].withOpacity(0.08),
+					color: mood['color'].withValues(alpha: 0.08),
 					borderRadius: BorderRadius.circular(12),
-					border: Border.all(color: mood['color'].withOpacity(0.25)),
+				border: Border.all(color: mood['color'].withValues(alpha: 0.25)),
 				),
 				child: Row(
 					mainAxisSize: MainAxisSize.min,
@@ -153,8 +153,8 @@ class _MoodTrackerScreenState extends State<MoodTrackerScreen> {
 							decoration: BoxDecoration(
 								gradient: LinearGradient(
 									colors: [
-										Theme.of(context).colorScheme.primary.withOpacity(0.08),
-										Theme.of(context).colorScheme.secondary.withOpacity(0.08),
+									Theme.of(context).colorScheme.primary.withValues(alpha: 0.08),
+									Theme.of(context).colorScheme.secondary.withValues(alpha: 0.08),
 									],
 									begin: Alignment.topLeft,
 									end: Alignment.bottomRight,
@@ -226,7 +226,7 @@ class _MoodTrackerScreenState extends State<MoodTrackerScreen> {
 												decoration: BoxDecoration(
 													color: Theme.of(context).colorScheme.surface,
 													borderRadius: BorderRadius.circular(14),
-													boxShadow: [BoxShadow(color: Colors.black.withOpacity(0.05), blurRadius: 8, offset: const Offset(0, 2))],
+									boxShadow: [BoxShadow(color: Colors.black.withValues(alpha: 0.05), blurRadius: 8, offset: const Offset(0, 2))],
 												),
 												child: StreamBuilder<List<MoodEntry>>(
 													stream: _service.streamRecent(days: 7),

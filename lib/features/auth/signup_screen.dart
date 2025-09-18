@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
+// import 'package:flutter/services.dart';
 import '../../services/auth_service.dart';
 import '../../widgets/neuropulse_logo.dart';
 
@@ -79,14 +79,14 @@ class _SignUpScreenState extends State<SignUpScreen> {
               width: double.infinity,
               constraints: const BoxConstraints(maxWidth: 400),
               decoration: BoxDecoration(
-                color: const Color(0xFF1C1C1C).withOpacity(0.7),
+                color: const Color(0xFF1C1C1C).withValues(alpha: 0.7),
                 borderRadius: BorderRadius.circular(24),
                 border: Border.all(
-                  color: const Color(0xFF7E57C2).withOpacity(0.3),
+                  color: const Color(0xFF7E57C2).withValues(alpha: 0.3),
                 ),
                 boxShadow: [
                   BoxShadow(
-                    color: Colors.black.withOpacity(0.5),
+                    color: Colors.black.withValues(alpha: 0.5),
                     blurRadius: 20,
                     spreadRadius: 5,
                   ),
@@ -152,8 +152,8 @@ class _SignUpScreenState extends State<SignUpScreen> {
             shape: BoxShape.circle,
             gradient: RadialGradient(
               colors: [
-                const Color(0xFF9C27B0).withOpacity(0.2),
-                const Color(0xFF3F51B5).withOpacity(0.2),
+                const Color(0xFF9C27B0).withValues(alpha: 0.2),
+                const Color(0xFF3F51B5).withValues(alpha: 0.2),
               ],
             ),
           ),

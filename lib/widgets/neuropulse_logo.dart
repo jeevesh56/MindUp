@@ -128,7 +128,7 @@ class NeuroPulseLogoPainter extends CustomPainter {
     }
 
     // Add some glow effect
-    paint.color = const Color(0xFF9C27B0).withOpacity(0.3);
+    paint.color = const Color(0xFF9C27B0).withValues(alpha: 0.3);
     paint.strokeWidth = 4.0;
     paint.style = PaintingStyle.stroke;
     canvas.drawPath(headPath, paint);
