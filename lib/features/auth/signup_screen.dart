@@ -16,7 +16,7 @@ class _SignUpScreenState extends State<SignUpScreen> {
   final _passwordController = TextEditingController();
   final _confirmPasswordController = TextEditingController();
   final AuthService _authService = AuthService();
-  
+
   bool _showPassword = false;
   bool _showConfirmPassword = false;
   bool _isLoading = false;
@@ -31,9 +31,9 @@ class _SignUpScreenState extends State<SignUpScreen> {
 
   Future<void> _handleSignUp() async {
     if (!_formKey.currentState!.validate()) return;
-    
+
     setState(() => _isLoading = true);
-    
+
     try {
       await _authService.createUserWithEmailAndPassword(
         _emailController.text.trim(),
@@ -45,10 +45,7 @@ class _SignUpScreenState extends State<SignUpScreen> {
     } catch (e) {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text(e.toString()),
-            backgroundColor: Colors.red,
-          ),
+          SnackBar(content: Text(e.toString()), backgroundColor: Colors.red),
         );
       }
     } finally {
@@ -66,10 +63,7 @@ class _SignUpScreenState extends State<SignUpScreen> {
           gradient: LinearGradient(
             begin: Alignment.topLeft,
             end: Alignment.bottomRight,
-            colors: [
-              Color(0xFF0D0D0D),
-              Color(0xFF1A0F2E),
-            ],
+            colors: [Color(0xFF0D0D0D), Color(0xFF1A0F2E)],
           ),
         ),
         child: Center(
@@ -101,34 +95,34 @@ class _SignUpScreenState extends State<SignUpScreen> {
                     children: [
                       // Header
                       _buildHeader(),
-                      
+
                       const SizedBox(height: 32),
-                      
+
                       // Email field
                       _buildEmailField(),
-                      
+
                       const SizedBox(height: 24),
-                      
+
                       // Password field
                       _buildPasswordField(),
-                      
+
                       const SizedBox(height: 24),
-                      
+
                       // Confirm Password field
                       _buildConfirmPasswordField(),
-                      
+
                       const SizedBox(height: 32),
-                      
+
                       // Sign Up button
                       _buildSignUpButton(),
-                      
+
                       const SizedBox(height: 16),
-                      
+
                       // Back to Login button
                       _buildBackToLoginButton(),
-                      
+
                       const SizedBox(height: 24),
-                      
+
                       // Privacy note
                       _buildPrivacyNote(),
                     ],
@@ -157,9 +151,7 @@ class _SignUpScreenState extends State<SignUpScreen> {
               ],
             ),
           ),
-          child: const NeuroPulseLogo(
-            size: 64,
-          ),
+          child: const NeuroPulseLogo(size: 64),
         ),
         const SizedBox(height: 16),
         const Text(
@@ -173,10 +165,7 @@ class _SignUpScreenState extends State<SignUpScreen> {
         const SizedBox(height: 4),
         Text(
           'Join the MindCare community',
-          style: TextStyle(
-            color: const Color(0xFF9E9E9E),
-            fontSize: 14,
-          ),
+          style: TextStyle(color: const Color(0xFF9E9E9E), fontSize: 14),
         ),
       ],
     );
@@ -219,10 +208,7 @@ class _SignUpScreenState extends State<SignUpScreen> {
             ),
             focusedBorder: OutlineInputBorder(
               borderRadius: BorderRadius.circular(12),
-              borderSide: const BorderSide(
-                color: Color(0xFF9C27B0),
-                width: 2,
-              ),
+              borderSide: const BorderSide(color: Color(0xFF9C27B0), width: 2),
             ),
           ),
           validator: (value) {
@@ -283,10 +269,7 @@ class _SignUpScreenState extends State<SignUpScreen> {
             ),
             focusedBorder: OutlineInputBorder(
               borderRadius: BorderRadius.circular(12),
-              borderSide: const BorderSide(
-                color: Color(0xFF9C27B0),
-                width: 2,
-              ),
+              borderSide: const BorderSide(color: Color(0xFF9C27B0), width: 2),
             ),
           ),
           validator: (value) {
@@ -329,7 +312,10 @@ class _SignUpScreenState extends State<SignUpScreen> {
                 _showConfirmPassword ? Icons.visibility_off : Icons.visibility,
                 color: const Color(0xFFB39DDB),
               ),
-              onPressed: () => setState(() => _showConfirmPassword = !_showConfirmPassword),
+              onPressed:
+                  () => setState(
+                    () => _showConfirmPassword = !_showConfirmPassword,
+                  ),
             ),
             filled: true,
             fillColor: const Color(0xFF1C1C1C).withOpacity(0.7),
@@ -347,10 +333,7 @@ class _SignUpScreenState extends State<SignUpScreen> {
             ),
             focusedBorder: OutlineInputBorder(
               borderRadius: BorderRadius.circular(12),
-              borderSide: const BorderSide(
-                color: Color(0xFF9C27B0),
-                width: 2,
-              ),
+              borderSide: const BorderSide(color: Color(0xFF9C27B0), width: 2),
             ),
           ),
           validator: (value) {
@@ -381,22 +364,20 @@ class _SignUpScreenState extends State<SignUpScreen> {
           ),
           elevation: 8,
         ),
-        child: _isLoading
-            ? const SizedBox(
-                width: 20,
-                height: 20,
-                child: CircularProgressIndicator(
-                  strokeWidth: 2,
-                  valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
+        child:
+            _isLoading
+                ? const SizedBox(
+                  width: 20,
+                  height: 20,
+                  child: CircularProgressIndicator(
+                    strokeWidth: 2,
+                    valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
+                  ),
+                )
+                : const Text(
+                  'Create Account',
+                  style: TextStyle(fontSize: 16, fontWeight: FontWeight.w600),
                 ),
-              )
-            : const Text(
-                'Create Account',
-                style: TextStyle(
-                  fontSize: 16,
-                  fontWeight: FontWeight.w600,
-                ),
-              ),
       ),
     );
   }
@@ -409,20 +390,14 @@ class _SignUpScreenState extends State<SignUpScreen> {
         onPressed: _isLoading ? null : () => Navigator.of(context).pop(),
         style: OutlinedButton.styleFrom(
           foregroundColor: const Color(0xFFB39DDB),
-          side: const BorderSide(
-            color: Color(0xFFB39DDB),
-            width: 2,
-          ),
+          side: const BorderSide(color: Color(0xFFB39DDB), width: 2),
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(12),
           ),
         ),
         child: const Text(
           'Back to Login',
-          style: TextStyle(
-            fontSize: 16,
-            fontWeight: FontWeight.w600,
-          ),
+          style: TextStyle(fontSize: 16, fontWeight: FontWeight.w600),
         ),
       ),
     );
@@ -431,10 +406,7 @@ class _SignUpScreenState extends State<SignUpScreen> {
   Widget _buildPrivacyNote() {
     return const Text(
       '🔒 Your conversations are private and secure.',
-      style: TextStyle(
-        color: Color(0xFF9E9E9E),
-        fontSize: 14,
-      ),
+      style: TextStyle(color: Color(0xFF9E9E9E), fontSize: 14),
       textAlign: TextAlign.center,
     );
   }

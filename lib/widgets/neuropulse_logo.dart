@@ -4,7 +4,7 @@ class NeuroPulseLogo extends StatelessWidget {
   final double size;
   final bool showText;
   final bool useImage;
-  
+
   const NeuroPulseLogo({
     super.key,
     this.size = 64.0,
@@ -20,7 +20,7 @@ class NeuroPulseLogo extends StatelessWidget {
         width: size,
         height: size,
         child: Image.asset(
-            'assets/logo.jpg',
+          'assets/logo.jpg',
           width: size,
           height: size,
           fit: BoxFit.contain,
@@ -50,39 +50,51 @@ class NeuroPulseLogo extends StatelessWidget {
 class NeuroPulseLogoPainter extends CustomPainter {
   @override
   void paint(Canvas canvas, Size size) {
-    final paint = Paint()
-      ..style = PaintingStyle.stroke
-      ..strokeWidth = 2.0;
+    final paint =
+        Paint()
+          ..style = PaintingStyle.stroke
+          ..strokeWidth = 2.0;
 
-    final fillPaint = Paint()
-      ..style = PaintingStyle.fill;
+    final fillPaint = Paint()..style = PaintingStyle.fill;
 
     // Head silhouette
     final headPath = Path();
     headPath.moveTo(size.width * 0.2, size.height * 0.3);
     headPath.quadraticBezierTo(
-      size.width * 0.1, size.height * 0.4,
-      size.width * 0.15, size.height * 0.6,
+      size.width * 0.1,
+      size.height * 0.4,
+      size.width * 0.15,
+      size.height * 0.6,
     );
     headPath.quadraticBezierTo(
-      size.width * 0.2, size.height * 0.8,
-      size.width * 0.4, size.height * 0.85,
+      size.width * 0.2,
+      size.height * 0.8,
+      size.width * 0.4,
+      size.height * 0.85,
     );
     headPath.quadraticBezierTo(
-      size.width * 0.6, size.height * 0.9,
-      size.width * 0.8, size.height * 0.8,
+      size.width * 0.6,
+      size.height * 0.9,
+      size.width * 0.8,
+      size.height * 0.8,
     );
     headPath.quadraticBezierTo(
-      size.width * 0.9, size.height * 0.6,
-      size.width * 0.85, size.height * 0.4,
+      size.width * 0.9,
+      size.height * 0.6,
+      size.width * 0.85,
+      size.height * 0.4,
     );
     headPath.quadraticBezierTo(
-      size.width * 0.8, size.height * 0.2,
-      size.width * 0.6, size.height * 0.15,
+      size.width * 0.8,
+      size.height * 0.2,
+      size.width * 0.6,
+      size.height * 0.15,
     );
     headPath.quadraticBezierTo(
-      size.width * 0.4, size.height * 0.1,
-      size.width * 0.2, size.height * 0.3,
+      size.width * 0.4,
+      size.height * 0.1,
+      size.width * 0.2,
+      size.height * 0.3,
     );
 
     // Draw head outline
@@ -120,7 +132,7 @@ class NeuroPulseLogoPainter extends CustomPainter {
       final barHeight = barHeights[i] * size.height * 0.3;
       final barX = startX + (i * barWidth * 0.8);
       final barY = startY - barHeight;
-      
+
       canvas.drawRect(
         Rect.fromLTWH(barX, barY, barWidth * 0.6, barHeight),
         fillPaint,
@@ -140,11 +152,8 @@ class NeuroPulseLogoPainter extends CustomPainter {
 
 class NeuroPulseLogoWithText extends StatelessWidget {
   final double size;
-  
-  const NeuroPulseLogoWithText({
-    super.key,
-    this.size = 128.0,
-  });
+
+  const NeuroPulseLogoWithText({super.key, this.size = 128.0});
 
   @override
   Widget build(BuildContext context) {
