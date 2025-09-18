@@ -7,11 +7,7 @@ import '../mood/mood_service.dart';
 import '../mood/models/mood_entry.dart';
 import '../streaks/streaks_service.dart';
 import '../garden/mood_garden_screen.dart';
-import '../chatbot/chatbot_screen.dart';
-import '../games/games_hub_screen.dart';
-import '../forum/forum_screen.dart';
 import '../mood/mood_tracker_screen.dart';
-import 'mental_health_dashboard.dart';
 
 class DashboardScreen extends StatefulWidget {
 	const DashboardScreen({super.key});
@@ -83,11 +79,17 @@ class _DashboardScreenState extends State<DashboardScreen> with TickerProviderSt
 	}
 
 	String _getMoodEmoji(int score) {
-		if (score <= 2) return '😢';
-		if (score <= 4) return '😔';
-		if (score <= 6) return '😐';
-		if (score <= 8) return '😊';
-		return '😄';
+		switch (score) {
+			case 1: return '😢'; // Very Sad
+			case 2: return '😔'; // Sad
+			case 3: return '😐'; // Neutral
+			case 4: return '🙂'; // Okay
+			case 5: return '😊'; // Happy
+			case 6: return '😄'; // Very Happy
+			case 7: return '🤩'; // Excited
+			case 8: return '🥳'; // Ecstatic
+			default: return '😐';
+		}
 	}
 
 	@override
@@ -220,21 +222,6 @@ class _DashboardScreenState extends State<DashboardScreen> with TickerProviderSt
 								],
 							),
 						).animate().fadeIn(duration: 1200.ms).slideY(begin: 0.1),
-						const SizedBox(height: 12),
-						Text('Quick actions', style: Theme.of(context).textTheme.titleMedium),
-						const SizedBox(height: 8),
-						Wrap(
-							spacing: 12,
-							runSpacing: 12,
-							children: [
-								_ActionButton(icon: Icons.smart_toy, label: 'Chatbot', onTap: ()=> Navigator.of(context).push(MaterialPageRoute(builder: (_)=>const ChatbotScreen()))),
-								_ActionButton(icon: Icons.mood, label: 'Mood', onTap: ()=> Navigator.of(context).push(MaterialPageRoute(builder: (_)=>const MoodTrackerScreen()))),
-								_ActionButton(icon: Icons.local_florist, label: 'Garden', onTap: ()=> Navigator.of(context).push(MaterialPageRoute(builder: (_)=>const MoodGardenScreen()))),
-								_ActionButton(icon: Icons.videogame_asset, label: 'Games', onTap: ()=> Navigator.of(context).push(MaterialPageRoute(builder: (_)=>const GamesHubScreen()))),
-								_ActionButton(icon: Icons.forum, label: 'Forum', onTap: ()=> Navigator.of(context).push(MaterialPageRoute(builder: (_)=>const ForumScreen()))),
-							_ActionButton(icon: Icons.dashboard_customize, label: 'New Dashboard', onTap: ()=> Navigator.of(context).push(MaterialPageRoute(builder: (_)=> const ExperimentalMentalHealthDashboard()))),
-							],
-						).animate().fadeIn(duration: 1400.ms).slideY(begin: 0.2),
 					],
 				),
 				if (_showMoodPopup) _MoodPopup(
@@ -302,115 +289,136 @@ class _InteractiveCard extends StatelessWidget {
 	}
 }
 
-class _ActionButton extends StatelessWidget {
-	final IconData icon; final String label; final VoidCallback onTap;
-	const _ActionButton({required this.icon, required this.label, required this.onTap});
-	@override
-	Widget build(BuildContext context) {
-		return InkWell(
-			onTap: () {
-				HapticFeedback.lightImpact();
-				onTap();
-			},
-			borderRadius: BorderRadius.circular(14),
-			child: Container(
-				width: 160,
-				padding: const EdgeInsets.all(12),
-				decoration: BoxDecoration(
-					color: Theme.of(context).colorScheme.secondaryContainer,
-					borderRadius: BorderRadius.circular(14),
-					boxShadow: [
-						BoxShadow(
-							color: Colors.black.withValues(alpha: 0.05),
-							blurRadius: 6,
-							offset: const Offset(0, 2),
-						),
-					],
-				),
-				child: Row(
-					mainAxisSize: MainAxisSize.min,
-					children: [Icon(icon), const SizedBox(width: 8), Text(label)],
-				),
-			),
-		);
-	}
-}
 
-class _MoodPopup extends StatelessWidget {
+class _MoodPopup extends StatefulWidget {
 	final VoidCallback onClose;
 	final Function(int) onMoodSelected;
 	
 	const _MoodPopup({required this.onClose, required this.onMoodSelected});
 
 	@override
-	Widget build(BuildContext context) {
-		return Material(
-			color: Colors.black.withValues(alpha: 0.5),
-			child: Center(
-				child: Container(
-					margin: const EdgeInsets.all(24),
-					padding: const EdgeInsets.all(24),
-					decoration: BoxDecoration(
-						color: Theme.of(context).colorScheme.surface,
-						borderRadius: BorderRadius.circular(20),
-						boxShadow: [
-							BoxShadow(
-								color: Colors.black.withValues(alpha: 0.2),
-								blurRadius: 20,
-								offset: const Offset(0, 10),
-							),
-						],
-					),
-					child: Column(
-						mainAxisSize: MainAxisSize.min,
-						children: [
-							Text('How are you feeling?', style: Theme.of(context).textTheme.headlineSmall),
-							const SizedBox(height: 20),
-							Wrap(
-								spacing: 16,
-								runSpacing: 16,
-								children: [
-									_MoodEmoji(emoji: '😢', score: 1, onTap: () => onMoodSelected(1)),
-									_MoodEmoji(emoji: '😔', score: 2, onTap: () => onMoodSelected(2)),
-									_MoodEmoji(emoji: '😐', score: 3, onTap: () => onMoodSelected(3)),
-									_MoodEmoji(emoji: '😊', score: 4, onTap: () => onMoodSelected(4)),
-									_MoodEmoji(emoji: '😄', score: 5, onTap: () => onMoodSelected(5)),
-								],
-							),
-							const SizedBox(height: 20),
-							TextButton(onPressed: onClose, child: const Text('Skip for now')),
-						],
-					),
-				),
-			),
-		);
-	}
+	State<_MoodPopup> createState() => _MoodPopupState();
 }
 
-class _MoodEmoji extends StatelessWidget {
-	final String emoji;
-	final int score;
-	final VoidCallback onTap;
+class _MoodPopupState extends State<_MoodPopup> with TickerProviderStateMixin {
+	late AnimationController _fadeController;
+	late AnimationController _scaleController;
+	Map<String, dynamic>? _selectedMood;
 	
-	const _MoodEmoji({required this.emoji, required this.score, required this.onTap});
+	// Advanced mood options
+	final List<Map<String, dynamic>> _moodOptions = [
+		{'emoji': '😢', 'label': 'Sad', 'score': 1, 'color': Colors.blue, 'description': 'Feeling down'},
+		{'emoji': '😐', 'label': 'Neutral', 'score': 3, 'color': Colors.grey, 'description': 'Feeling okay'},
+		{'emoji': '🙂', 'label': 'Okay', 'score': 5, 'color': Colors.orange, 'description': 'Feeling decent'},
+		{'emoji': '😊', 'label': 'Happy', 'score': 7, 'color': Colors.green, 'description': 'Feeling good'},
+		{'emoji': '😄', 'label': 'Great', 'score': 9, 'color': Colors.purple, 'description': 'Feeling amazing'},
+	];
+
+	@override
+	void initState() {
+		super.initState();
+		_fadeController = AnimationController(vsync: this, duration: const Duration(milliseconds: 300));
+		_scaleController = AnimationController(vsync: this, duration: const Duration(milliseconds: 200));
+		_fadeController.forward();
+	}
+
+	@override
+	void dispose() {
+		_fadeController.dispose();
+		_scaleController.dispose();
+		super.dispose();
+	}
+
+	void _selectMood(Map<String, dynamic> mood) {
+		setState(() => _selectedMood = mood);
+		_scaleController.forward().then((_) => _scaleController.reverse());
+		HapticFeedback.mediumImpact();
+	}
+
+	void _submitMood() {
+		if (_selectedMood != null) {
+			widget.onMoodSelected(_selectedMood!['score']);
+			widget.onClose();
+		}
+	}
 
 	@override
 	Widget build(BuildContext context) {
-		return InkWell(
-			onTap: () {
-				HapticFeedback.mediumImpact();
-				onTap();
-			},
-			borderRadius: BorderRadius.circular(12),
-			child: Container(
-				width: 60,
-				height: 60,
-				decoration: BoxDecoration(
-					color: Theme.of(context).colorScheme.primaryContainer,
-					borderRadius: BorderRadius.circular(12),
-				),
+		return FadeTransition(
+			opacity: _fadeController,
+			child: Material(
+				color: Colors.black.withOpacity(0.4),
 				child: Center(
-					child: Text(emoji, style: const TextStyle(fontSize: 32)),
+					child: Container(
+						margin: const EdgeInsets.all(12),
+						padding: const EdgeInsets.all(14),
+						decoration: BoxDecoration(
+							color: Theme.of(context).colorScheme.surface,
+							borderRadius: BorderRadius.circular(16),
+							boxShadow: [BoxShadow(color: Colors.black.withOpacity(0.15), blurRadius: 16, offset: const Offset(0, 8))],
+						),
+						child: Column(
+							mainAxisSize: MainAxisSize.min,
+							children: [
+								// Title row
+								Row(
+									children: [
+										Icon(Icons.mood, color: Theme.of(context).colorScheme.primary, size: 18),
+										const SizedBox(width: 6),
+										Text('Choose mood', style: Theme.of(context).textTheme.titleSmall?.copyWith(fontWeight: FontWeight.w700, fontSize: 18)),
+										const Spacer(),
+										IconButton(
+											onPressed: widget.onClose,
+											icon: const Icon(Icons.close, size: 18),
+											style: IconButton.styleFrom(minimumSize: const Size(32,32), padding: const EdgeInsets.all(6)),
+										),
+									],
+								),
+								const SizedBox(height: 8),
+								// Compact emoji grid
+								GridView.builder(
+									shrinkWrap: true,
+									physics: const NeverScrollableScrollPhysics(),
+									gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+										crossAxisCount: 5,
+										childAspectRatio: 1,
+										crossAxisSpacing: 4,
+										mainAxisSpacing: 4,
+									),
+									itemCount: _moodOptions.length,
+									itemBuilder: (context, index) {
+										final mood = _moodOptions[index];
+										final isSelected = _selectedMood == mood;
+										return AnimatedBuilder(
+											animation: _scaleController,
+											builder: (context, child) {
+												return Transform.scale(
+													scale: isSelected ? 1.0 + (_scaleController.value * 0.08) : 1.0,
+													child: InkWell(
+														onTap: () {
+															widget.onMoodSelected(mood['score']);
+															widget.onClose();
+														},
+														borderRadius: BorderRadius.circular(12),
+														child: Container(
+															padding: const EdgeInsets.all(8),
+															decoration: BoxDecoration(
+																color: mood['color'].withOpacity(0.06),
+																borderRadius: BorderRadius.circular(12),
+															),
+															child: Center(
+																child: Text(mood['emoji'], style: const TextStyle(fontSize: 28)),
+															),
+														),
+													),
+												);
+											},
+										);
+									},
+								),
+							],
+						),
+					),
 				),
 			),
 		);

@@ -6,7 +6,7 @@ class AppThemeController {
 	factory AppThemeController() => _instance;
 	AppThemeController._internal();
 
-	final ValueNotifier<ThemeMode> themeMode = ValueNotifier<ThemeMode>(ThemeMode.system);
+	final ValueNotifier<ThemeMode> themeMode = ValueNotifier<ThemeMode>(ThemeMode.light);
 	static const String _prefKey = 'app_theme_mode';
 
 	Future<void> load() async {
@@ -20,7 +20,7 @@ class AppThemeController {
 				themeMode.value = ThemeMode.dark;
 				break;
 			default:
-				themeMode.value = ThemeMode.system;
+				themeMode.value = ThemeMode.light;
 		}
 	}
 
@@ -28,6 +28,11 @@ class AppThemeController {
 		themeMode.value = mode;
 		final prefs = await SharedPreferences.getInstance();
 		await prefs.setString(_prefKey, switch (mode) { ThemeMode.light => 'light', ThemeMode.dark => 'dark', _ => 'system' });
+	}
+
+	Future<void> toggleTheme() async {
+		final newMode = themeMode.value == ThemeMode.light ? ThemeMode.dark : ThemeMode.light;
+		await setThemeMode(newMode);
 	}
 }
 

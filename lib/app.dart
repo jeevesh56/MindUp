@@ -97,6 +97,23 @@ class _HomeShellState extends State<_HomeShell> {
 					['Dashboard','Chatbot','Mood','Forum'][_selectedIndex],
 					style: Theme.of(context).textTheme.titleLarge,
 				),
+				actions: [
+					ValueListenableBuilder<ThemeMode>(
+						valueListenable: AppThemeController().themeMode,
+						builder: (context, mode, _) {
+							return IconButton(
+								onPressed: () {
+									AppThemeController().toggleTheme();
+								},
+								icon: Icon(
+									mode == ThemeMode.dark ? Icons.light_mode : Icons.dark_mode,
+									color: Theme.of(context).colorScheme.primary,
+								),
+								tooltip: mode == ThemeMode.dark ? 'Switch to Light Mode' : 'Switch to Dark Mode',
+							);
+						},
+					),
+				],
 			),
 			drawer: Drawer(
 				child: SafeArea(
