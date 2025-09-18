@@ -1,5 +1,6 @@
 import 'package:fl_chart/fl_chart.dart';
 import 'package:flutter/material.dart';
+import 'dart:ui';
 import 'package:flutter/services.dart';
 import 'package:flutter_animate/flutter_animate.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -460,6 +461,7 @@ class _MoodPopupState extends State<_MoodPopup> with TickerProviderStateMixin {
       duration: const Duration(milliseconds: 200),
     );
     _fadeController.forward();
+    _scaleController.forward();
   }
 
   @override
@@ -476,101 +478,144 @@ class _MoodPopupState extends State<_MoodPopup> with TickerProviderStateMixin {
     return FadeTransition(
       opacity: _fadeController,
       child: Material(
-        color: Colors.black.withValues(alpha: 0.4),
+        color: Colors.black.withValues(alpha: 0.35),
         child: Center(
-          child: Container(
-            margin: const EdgeInsets.all(12),
-            padding: const EdgeInsets.all(14),
-            decoration: BoxDecoration(
-              color: Theme.of(context).colorScheme.surface,
-              borderRadius: BorderRadius.circular(16),
-              boxShadow: [
-                BoxShadow(
-                  color: Colors.black.withValues(alpha: 0.15),
-                  blurRadius: 16,
-                  offset: const Offset(0, 8),
+          child: ClipRRect(
+            borderRadius: BorderRadius.circular(20),
+            child: BackdropFilter(
+              filter: ImageFilter.blur(sigmaX: 10, sigmaY: 10),
+              child: ScaleTransition(
+                scale: CurvedAnimation(
+                  parent: _scaleController,
+                  curve: Curves.easeOutBack,
                 ),
-              ],
-            ),
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                // Title row
-                Row(
-                  children: [
-                    Icon(
-                      Icons.mood,
-                      color: Theme.of(context).colorScheme.primary,
-                      size: 18,
+                child: Container(
+                  margin: const EdgeInsets.all(16),
+                  padding: const EdgeInsets.all(16),
+                  decoration: BoxDecoration(
+                    color: Theme.of(
+                      context,
+                    ).colorScheme.surface.withValues(alpha: 0.9),
+                    borderRadius: BorderRadius.circular(20),
+                    border: Border.all(
+                      color: Theme.of(
+                        context,
+                      ).colorScheme.outlineVariant.withValues(alpha: 0.6),
                     ),
-                    const SizedBox(width: 6),
-                    Text(
-                      'Choose mood',
-                      style: Theme.of(context).textTheme.titleSmall?.copyWith(
-                        fontWeight: FontWeight.w700,
-                        fontSize: 18,
+                    boxShadow: [
+                      BoxShadow(
+                        color: Colors.black.withValues(alpha: 0.2),
+                        blurRadius: 20,
+                        offset: const Offset(0, 10),
                       ),
-                    ),
-                    const Spacer(),
-                    IconButton(
-                      onPressed: widget.onClose,
-                      icon: const Icon(Icons.close, size: 18),
-                      style: IconButton.styleFrom(
-                        minimumSize: const Size(32, 32),
-                        padding: const EdgeInsets.all(6),
-                      ),
-                    ),
-                  ],
-                ),
-                const SizedBox(height: 8),
-                // Compact emoji grid
-                GridView.builder(
-                  shrinkWrap: true,
-                  physics: const NeverScrollableScrollPhysics(),
-                  gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-                    crossAxisCount: 5,
-                    childAspectRatio: 1,
-                    crossAxisSpacing: 4,
-                    mainAxisSpacing: 4,
+                    ],
                   ),
-                  itemCount: _moodOptions.length,
-                  itemBuilder: (context, index) {
-                    final mood = _moodOptions[index];
-                    final isSelected = _selectedMood == mood;
-                    return AnimatedBuilder(
-                      animation: _scaleController,
-                      builder: (context, child) {
-                        return Transform.scale(
-                          scale:
-                              isSelected
-                                  ? 1.0 + (_scaleController.value * 0.08)
-                                  : 1.0,
-                          child: InkWell(
-                            onTap: () {
-                              widget.onMoodSelected(mood['score']);
-                              widget.onClose();
-                            },
-                            borderRadius: BorderRadius.circular(12),
-                            child: Container(
-                              padding: const EdgeInsets.all(8),
-                              decoration: BoxDecoration(
-                                color: mood['color'].withValues(alpha: 0.06),
-                                borderRadius: BorderRadius.circular(12),
-                              ),
-                              child: Center(
-                                child: Text(
-                                  mood['emoji'],
-                                  style: const TextStyle(fontSize: 28),
-                                ),
-                              ),
+                  child: Column(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      // Title row
+                      Row(
+                        children: [
+                          Icon(
+                            Icons.mood,
+                            color: Theme.of(context).colorScheme.primary,
+                            size: 18,
+                          ),
+                          const SizedBox(width: 6),
+                          Text(
+                            'Choose mood',
+                            style: Theme.of(
+                              context,
+                            ).textTheme.titleSmall?.copyWith(
+                              fontWeight: FontWeight.w700,
+                              fontSize: 18,
                             ),
                           ),
-                        );
-                      },
-                    );
-                  },
+                          const Spacer(),
+                          IconButton(
+                            onPressed: widget.onClose,
+                            icon: const Icon(Icons.close, size: 18),
+                            style: IconButton.styleFrom(
+                              minimumSize: const Size(32, 32),
+                              padding: const EdgeInsets.all(6),
+                            ),
+                          ),
+                        ],
+                      ),
+                      const SizedBox(height: 8),
+                      // Compact emoji grid
+                      GridView.builder(
+                        shrinkWrap: true,
+                        physics: const NeverScrollableScrollPhysics(),
+                        gridDelegate:
+                            const SliverGridDelegateWithFixedCrossAxisCount(
+                              crossAxisCount: 5,
+                              childAspectRatio: 1,
+                              crossAxisSpacing: 4,
+                              mainAxisSpacing: 4,
+                            ),
+                        itemCount: _moodOptions.length,
+                        itemBuilder: (context, index) {
+                          final mood = _moodOptions[index];
+                          final isSelected = _selectedMood == mood;
+                          return AnimatedBuilder(
+                            animation: _scaleController,
+                            builder: (context, child) {
+                              return Transform.scale(
+                                scale:
+                                    isSelected
+                                        ? 1.0 + (_scaleController.value * 0.08)
+                                        : 1.0,
+                                child: InkWell(
+                                  onTap: () {
+                                    widget.onMoodSelected(mood['score']);
+                                    widget.onClose();
+                                  },
+                                  borderRadius: BorderRadius.circular(12),
+                                  child: Container(
+                                    padding: const EdgeInsets.all(8),
+                                    decoration: BoxDecoration(
+                                      borderRadius: BorderRadius.circular(12),
+                                      gradient: LinearGradient(
+                                        begin: Alignment.topLeft,
+                                        end: Alignment.bottomRight,
+                                        colors: [
+                                          mood['color'].withValues(alpha: 0.10),
+                                          mood['color'].withValues(alpha: 0.04),
+                                        ],
+                                      ),
+                                      border: Border.all(
+                                        color: mood['color'].withValues(
+                                          alpha: 0.20,
+                                        ),
+                                      ),
+                                      boxShadow: [
+                                        BoxShadow(
+                                          color: Colors.black.withValues(
+                                            alpha: 0.08,
+                                          ),
+                                          blurRadius: 10,
+                                          offset: const Offset(0, 4),
+                                        ),
+                                      ],
+                                    ),
+                                    child: Center(
+                                      child: Text(
+                                        mood['emoji'],
+                                        style: const TextStyle(fontSize: 28),
+                                      ),
+                                    ),
+                                  ),
+                                ),
+                              );
+                            },
+                          );
+                        },
+                      ),
+                    ],
+                  ),
                 ),
-              ],
+              ),
             ),
           ),
         ),

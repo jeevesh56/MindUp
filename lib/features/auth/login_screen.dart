@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_animate/flutter_animate.dart';
 import '../../services/auth_service.dart';
-import '../../widgets/neuropulse_logo.dart';
+import '../../widgets/neuropulse_logo.dart' as np;
 import 'signup_screen.dart';
 
 class LoginScreen extends StatefulWidget {
@@ -12,17 +12,18 @@ class LoginScreen extends StatefulWidget {
   State<LoginScreen> createState() => _LoginScreenState();
 }
 
-class _LoginScreenState extends State<LoginScreen> with TickerProviderStateMixin {
+class _LoginScreenState extends State<LoginScreen>
+    with TickerProviderStateMixin {
   final _formKey = GlobalKey<FormState>();
   final _emailController = TextEditingController();
   final _passwordController = TextEditingController();
   final AuthService _authService = AuthService();
-  
+
   bool _showPassword = false;
   bool _isLoading = false;
   late AnimationController _bounceController;
   late AnimationController _glowController;
-  
+
   // Bouncing animation state
   double _bounceX = 0.5;
   double _bounceY = 0.5;
@@ -36,12 +37,12 @@ class _LoginScreenState extends State<LoginScreen> with TickerProviderStateMixin
       vsync: this,
       duration: const Duration(milliseconds: 4), // Doubled again (8ms -> 4ms)
     )..repeat();
-    
+
     _glowController = AnimationController(
       vsync: this,
       duration: const Duration(seconds: 3),
     )..repeat();
-    
+
     _bounceController.addListener(_updateBouncePosition);
   }
 
@@ -49,21 +50,32 @@ class _LoginScreenState extends State<LoginScreen> with TickerProviderStateMixin
     setState(() {
       _bounceX += _velocityX;
       _bounceY += _velocityY;
-      
+
       // Bounce off edges with more dynamic movement
       if (_bounceX <= 0 || _bounceX >= 0.9) {
-        _velocityX = -_velocityX * (0.8 + (0.4 * (DateTime.now().millisecondsSinceEpoch % 1000) / 1000));
+        _velocityX =
+            -_velocityX *
+            (0.8 +
+                (0.4 * (DateTime.now().millisecondsSinceEpoch % 1000) / 1000));
         _bounceX = _bounceX <= 0 ? 0 : 0.9;
       }
       if (_bounceY <= 0 || _bounceY >= 0.8) {
-        _velocityY = -_velocityY * (0.8 + (0.4 * (DateTime.now().millisecondsSinceEpoch % 1000) / 1000));
+        _velocityY =
+            -_velocityY *
+            (0.8 +
+                (0.4 * (DateTime.now().millisecondsSinceEpoch % 1000) / 1000));
         _bounceY = _bounceY <= 0 ? 0 : 0.8;
       }
-      
+
       // Add some randomness to make it more organic
-      if (DateTime.now().millisecondsSinceEpoch % 25 == 0) { // Even more frequent randomness
-        _velocityX += (DateTime.now().millisecondsSinceEpoch % 3 - 1) * 0.0004; // Doubled again
-        _velocityY += (DateTime.now().millisecondsSinceEpoch % 3 - 1) * 0.0004; // Doubled again
+      if (DateTime.now().millisecondsSinceEpoch % 25 == 0) {
+        // Even more frequent randomness
+        _velocityX +=
+            (DateTime.now().millisecondsSinceEpoch % 3 - 1) *
+            0.0004; // Doubled again
+        _velocityY +=
+            (DateTime.now().millisecondsSinceEpoch % 3 - 1) *
+            0.0004; // Doubled again
       }
     });
   }
@@ -79,9 +91,9 @@ class _LoginScreenState extends State<LoginScreen> with TickerProviderStateMixin
 
   Future<void> _handleLogin() async {
     if (!_formKey.currentState!.validate()) return;
-    
+
     setState(() => _isLoading = true);
-    
+
     try {
       await _authService.signInWithEmailAndPassword(
         _emailController.text.trim(),
@@ -93,10 +105,7 @@ class _LoginScreenState extends State<LoginScreen> with TickerProviderStateMixin
     } catch (e) {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text(e.toString()),
-            backgroundColor: Colors.red,
-          ),
+          SnackBar(content: Text(e.toString()), backgroundColor: Colors.red),
         );
       }
     } finally {
@@ -108,7 +117,7 @@ class _LoginScreenState extends State<LoginScreen> with TickerProviderStateMixin
 
   Future<void> _handleGuestLogin() async {
     setState(() => _isLoading = true);
-    
+
     try {
       await _authService.ensureSignedIn();
       if (mounted) {
@@ -138,20 +147,17 @@ class _LoginScreenState extends State<LoginScreen> with TickerProviderStateMixin
           gradient: LinearGradient(
             begin: Alignment.topLeft,
             end: Alignment.bottomRight,
-            colors: [
-              Color(0xFF0D0D0D),
-              Color(0xFF1A0F2E),
-            ],
+            colors: [Color(0xFF0D0D0D), Color(0xFF1A0F2E)],
           ),
         ),
         child: Stack(
           children: [
             // Background effects
             _buildBackgroundEffects(),
-            
+
             // Bouncing logo
             _buildBouncingLogo(),
-            
+
             // Login form
             _buildLoginForm(),
           ],
@@ -179,7 +185,7 @@ class _LoginScreenState extends State<LoginScreen> with TickerProviderStateMixin
             ),
           ),
         ),
-        
+
         // Additional gradient overlays
         Positioned.fill(
           child: Container(
@@ -196,7 +202,7 @@ class _LoginScreenState extends State<LoginScreen> with TickerProviderStateMixin
             ),
           ),
         ),
-        
+
         // Diagonal gradient lines
         Positioned.fill(
           child: Container(
@@ -215,37 +221,41 @@ class _LoginScreenState extends State<LoginScreen> with TickerProviderStateMixin
             ),
           ),
         ),
-        
+
         // Animated light streaks with enhanced effects
         ...List.generate(3, (index) {
           return Positioned(
-            left: index == 0 ? MediaQuery.of(context).size.width * 0.25 :
-                  index == 1 ? MediaQuery.of(context).size.width * 0.67 :
-                  MediaQuery.of(context).size.width * 0.33,
+            left:
+                index == 0
+                    ? MediaQuery.of(context).size.width * 0.25
+                    : index == 1
+                    ? MediaQuery.of(context).size.width * 0.67
+                    : MediaQuery.of(context).size.width * 0.33,
             child: Container(
-              width: 2,
-              height: MediaQuery.of(context).size.height,
-              decoration: BoxDecoration(
-                gradient: LinearGradient(
-                  begin: Alignment.topCenter,
-                  end: Alignment.bottomCenter,
-                  colors: [
-                    Colors.transparent,
-                    const Color(0xFFB39DDB).withOpacity(0.5),
-                    const Color(0xFF9C27B0).withOpacity(0.3),
-                    Colors.transparent,
-                  ],
-                  stops: const [0.0, 0.3, 0.7, 1.0],
-                ),
-                boxShadow: [
-                  BoxShadow(
-                    color: const Color(0xFFB39DDB).withOpacity(0.3),
-                    blurRadius: 10,
-                    spreadRadius: 1,
+                  width: 2,
+                  height: MediaQuery.of(context).size.height,
+                  decoration: BoxDecoration(
+                    gradient: LinearGradient(
+                      begin: Alignment.topCenter,
+                      end: Alignment.bottomCenter,
+                      colors: [
+                        Colors.transparent,
+                        const Color(0xFFB39DDB).withOpacity(0.5),
+                        const Color(0xFF9C27B0).withOpacity(0.3),
+                        Colors.transparent,
+                      ],
+                      stops: const [0.0, 0.3, 0.7, 1.0],
+                    ),
+                    boxShadow: [
+                      BoxShadow(
+                        color: const Color(0xFFB39DDB).withOpacity(0.3),
+                        blurRadius: 10,
+                        spreadRadius: 1,
+                      ),
+                    ],
                   ),
-                ],
-              ),
-            ).animate(onPlay: (controller) => controller.repeat())
+                )
+                .animate(onPlay: (controller) => controller.repeat())
                 .fadeIn(duration: 2000.ms, delay: (index * 1000).ms)
                 .fadeOut(duration: 2000.ms)
                 .shimmer(duration: 3000.ms, delay: (index * 500).ms),
@@ -301,9 +311,7 @@ class _LoginScreenState extends State<LoginScreen> with TickerProviderStateMixin
               ],
             ),
           ),
-          child: const NeuroPulseLogo(
-            size: 40,
-          ),
+          child: const np.NeuroPulseLogo(size: 40),
         ),
       ),
     );
@@ -319,9 +327,7 @@ class _LoginScreenState extends State<LoginScreen> with TickerProviderStateMixin
           decoration: BoxDecoration(
             color: const Color(0xFF1C1C1C).withOpacity(0.7),
             borderRadius: BorderRadius.circular(24),
-            border: Border.all(
-              color: const Color(0xFF7E57C2).withOpacity(0.3),
-            ),
+            border: Border.all(color: const Color(0xFF7E57C2).withOpacity(0.3)),
             boxShadow: [
               BoxShadow(
                 color: Colors.black.withOpacity(0.5),
@@ -339,39 +345,39 @@ class _LoginScreenState extends State<LoginScreen> with TickerProviderStateMixin
                 children: [
                   // Logo and title
                   _buildHeader(),
-                  
+
                   const SizedBox(height: 32),
-                  
+
                   // Email field
                   _buildEmailField(),
-                  
+
                   const SizedBox(height: 24),
-                  
+
                   // Password field
                   _buildPasswordField(),
-                  
+
                   const SizedBox(height: 32),
-                  
+
                   // Login button
                   _buildLoginButton(),
-                  
+
                   const SizedBox(height: 16),
-                  
+
                   // Sign up button
                   _buildSignUpButton(),
-                  
+
                   const SizedBox(height: 24),
-                  
+
                   // Divider
                   _buildDivider(),
-                  
+
                   const SizedBox(height: 24),
-                  
+
                   // Guest button
                   _buildGuestButton(),
-                  
+
                   const SizedBox(height: 24),
-                  
+
                   // Privacy note
                   _buildPrivacyNote(),
                 ],
@@ -416,9 +422,7 @@ class _LoginScreenState extends State<LoginScreen> with TickerProviderStateMixin
                 ],
               ),
             ),
-            child: const NeuroPulseLogo(
-              size: 64,
-            ),
+            child: const np.NeuroPulseLogo(size: 64),
           ),
         ),
         const SizedBox(height: 16),
@@ -493,17 +497,11 @@ class _LoginScreenState extends State<LoginScreen> with TickerProviderStateMixin
             ),
             focusedBorder: OutlineInputBorder(
               borderRadius: BorderRadius.circular(12),
-              borderSide: const BorderSide(
-                color: Color(0xFF9C27B0),
-                width: 2,
-              ),
+              borderSide: const BorderSide(color: Color(0xFF9C27B0), width: 2),
             ),
             focusedErrorBorder: OutlineInputBorder(
               borderRadius: BorderRadius.circular(12),
-              borderSide: const BorderSide(
-                color: Color(0xFF9C27B0),
-                width: 2,
-              ),
+              borderSide: const BorderSide(color: Color(0xFF9C27B0), width: 2),
             ),
           ),
           validator: (value) {
@@ -564,17 +562,11 @@ class _LoginScreenState extends State<LoginScreen> with TickerProviderStateMixin
             ),
             focusedBorder: OutlineInputBorder(
               borderRadius: BorderRadius.circular(12),
-              borderSide: const BorderSide(
-                color: Color(0xFF9C27B0),
-                width: 2,
-              ),
+              borderSide: const BorderSide(color: Color(0xFF9C27B0), width: 2),
             ),
             focusedErrorBorder: OutlineInputBorder(
               borderRadius: BorderRadius.circular(12),
-              borderSide: const BorderSide(
-                color: Color(0xFF9C27B0),
-                width: 2,
-              ),
+              borderSide: const BorderSide(color: Color(0xFF9C27B0), width: 2),
             ),
           ),
           validator: (value) {
@@ -605,22 +597,20 @@ class _LoginScreenState extends State<LoginScreen> with TickerProviderStateMixin
           ),
           elevation: 8,
         ),
-        child: _isLoading
-            ? const SizedBox(
-                width: 20,
-                height: 20,
-                child: CircularProgressIndicator(
-                  strokeWidth: 2,
-                  valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
+        child:
+            _isLoading
+                ? const SizedBox(
+                  width: 20,
+                  height: 20,
+                  child: CircularProgressIndicator(
+                    strokeWidth: 2,
+                    valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
+                  ),
+                )
+                : const Text(
+                  'Login',
+                  style: TextStyle(fontSize: 16, fontWeight: FontWeight.w600),
                 ),
-              )
-            : const Text(
-                'Login',
-                style: TextStyle(
-                  fontSize: 16,
-                  fontWeight: FontWeight.w600,
-                ),
-              ),
       ),
     );
   }
@@ -630,29 +620,26 @@ class _LoginScreenState extends State<LoginScreen> with TickerProviderStateMixin
       width: double.infinity,
       height: 48,
       child: OutlinedButton(
-        onPressed: _isLoading ? null : () {
-          Navigator.of(context).push(
-            MaterialPageRoute(
-              builder: (context) => const SignUpScreen(),
-            ),
-          );
-        },
+        onPressed:
+            _isLoading
+                ? null
+                : () {
+                  Navigator.of(context).push(
+                    MaterialPageRoute(
+                      builder: (context) => const SignUpScreen(),
+                    ),
+                  );
+                },
         style: OutlinedButton.styleFrom(
           foregroundColor: const Color(0xFFB39DDB),
-          side: const BorderSide(
-            color: Color(0xFFB39DDB),
-            width: 2,
-          ),
+          side: const BorderSide(color: Color(0xFFB39DDB), width: 2),
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(12),
           ),
         ),
         child: const Text(
           'Sign Up',
-          style: TextStyle(
-            fontSize: 16,
-            fontWeight: FontWeight.w600,
-          ),
+          style: TextStyle(fontSize: 16, fontWeight: FontWeight.w600),
         ),
       ),
     );
@@ -679,10 +666,7 @@ class _LoginScreenState extends State<LoginScreen> with TickerProviderStateMixin
           padding: EdgeInsets.symmetric(horizontal: 16),
           child: Text(
             'or',
-            style: TextStyle(
-              color: Color(0xFF9E9E9E),
-              fontSize: 14,
-            ),
+            style: TextStyle(color: Color(0xFF9E9E9E), fontSize: 14),
           ),
         ),
         Expanded(
@@ -713,9 +697,7 @@ class _LoginScreenState extends State<LoginScreen> with TickerProviderStateMixin
         label: const Text('Continue as Guest'),
         style: OutlinedButton.styleFrom(
           foregroundColor: const Color(0xFFB39DDB),
-          side: BorderSide(
-            color: const Color(0xFF3F51B5).withOpacity(0.3),
-          ),
+          side: BorderSide(color: const Color(0xFF3F51B5).withOpacity(0.3)),
           backgroundColor: const Color(0xFF1C1C1C).withOpacity(0.5),
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(12),
@@ -728,10 +710,7 @@ class _LoginScreenState extends State<LoginScreen> with TickerProviderStateMixin
   Widget _buildPrivacyNote() {
     return const Text(
       '🔒 Your conversations are private and secure.',
-      style: TextStyle(
-        color: Color(0xFF9E9E9E),
-        fontSize: 14,
-      ),
+      style: TextStyle(color: Color(0xFF9E9E9E), fontSize: 14),
       textAlign: TextAlign.center,
     );
   }

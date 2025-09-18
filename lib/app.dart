@@ -70,7 +70,7 @@ class _HomeShellState extends State<_HomeShell> {
     return Scaffold(
       appBar: AppBar(
         title: Text(
-          ['Dashboard', 'Chatbot', 'Mood', 'Forum'][_selectedIndex],
+          ['Home', 'Chatbot', 'Mood', 'Forum'][_selectedIndex],
           style: Theme.of(context).textTheme.titleLarge,
         ),
         actions: [
