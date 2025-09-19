@@ -1,0 +1,39 @@
+{
+  "project_info": {
+    "project_number": "213103035946",
+    "project_id": "mindup-app-213103035946",
+    "storage_bucket": "mindup-app-213103035946.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:213103035946:android:c193c8f6ac8c785e222553",
+        "android_client_info": {
+          "package_name": "com.example.stress_app"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "213103035946-xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "213103035946-xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
