@@ -95,14 +95,17 @@ class _LoginScreenState extends State<LoginScreen>
     setState(() => _isLoading = true);
 
     try {
-      await _authService.signInWithEmailAndPassword(
+      print('🔐 Attempting email login...');
+      final userEmail = await _authService.signInWithEmailAndPassword(
         _emailController.text.trim(),
         _passwordController.text,
       );
+      print('✅ Email login successful: $userEmail');
       if (mounted) {
         Navigator.of(context).pushReplacementNamed('/dashboard');
       }
     } catch (e) {
+      print('❌ Email login failed: $e');
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(content: Text(e.toString()), backgroundColor: Colors.red),
@@ -119,11 +122,14 @@ class _LoginScreenState extends State<LoginScreen>
     setState(() => _isLoading = true);
 
     try {
-      await _authService.ensureSignedIn();
+      print('🔐 Attempting guest login...');
+      final userEmail = await _authService.ensureSignedIn();
+      print('✅ Guest login successful: $userEmail');
       if (mounted) {
         Navigator.of(context).pushReplacementNamed('/dashboard');
       }
     } catch (e) {
+      print('❌ Guest login failed: $e');
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(

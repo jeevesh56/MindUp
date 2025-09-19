@@ -1,87 +1,39 @@
-import 'package:firebase_auth/firebase_auth.dart';
-import '../utils/firebase_readiness.dart';
+import 'simple_auth_service.dart';
 
 class AuthService {
-	FirebaseAuth? _authOrNull() {
-		if (!FirebaseReadiness.isInitialized) return null;
-		return FirebaseAuth.instance;
-	}
+	final SimpleAuthService _simpleAuth = SimpleAuthService();
 
-	Future<User?> ensureSignedIn() async {
-		final auth = _authOrNull();
-		if (auth == null) return null;
-		final current = auth.currentUser;
-		if (current != null) return current;
-		final cred = await auth.signInAnonymously();
-		return cred.user;
-	}
-
-	Future<User?> signInWithEmailAndPassword(String email, String password) async {
-		final auth = _authOrNull();
-		if (auth == null) throw Exception('Firebase not initialized');
-		
-		try {
-			final credential = await auth.signInWithEmailAndPassword(
-				email: email,
-				password: password,
-			);
-			return credential.user;
-		} on FirebaseAuthException catch (e) {
-			throw _handleAuthException(e);
+	Future<String?> ensureSignedIn() async {
+		final isSignedIn = await _simpleAuth.isSignedIn();
+		if (isSignedIn) {
+			return await _simpleAuth.getCurrentUserEmail();
 		}
+		final success = await _simpleAuth.signInAnonymously();
+		return success ? await _simpleAuth.getCurrentUserEmail() : null;
 	}
 
-	Future<User?> createUserWithEmailAndPassword(String email, String password) async {
-		final auth = _authOrNull();
-		if (auth == null) throw Exception('Firebase not initialized');
-		
-		try {
-			final credential = await auth.createUserWithEmailAndPassword(
-				email: email,
-				password: password,
-			);
-			return credential.user;
-		} on FirebaseAuthException catch (e) {
-			throw _handleAuthException(e);
+	Future<String?> signInWithEmailAndPassword(String email, String password) async {
+		final success = await _simpleAuth.signInWithEmailAndPassword(email, password);
+		if (success) {
+			return await _simpleAuth.getCurrentUserEmail();
 		}
+		throw Exception('Invalid email or password');
+	}
+
+	Future<String?> createUserWithEmailAndPassword(String email, String password) async {
+		final success = await _simpleAuth.createUserWithEmailAndPassword(email, password);
+		if (success) {
+			return await _simpleAuth.getCurrentUserEmail();
+		}
+		throw Exception('Email already exists or invalid email');
 	}
 
 	Future<void> signOut() async {
-		final auth = _authOrNull();
-		if (auth == null) return;
-		await auth.signOut();
+		await _simpleAuth.signOut();
 	}
 
-	User? get currentUser {
-		final auth = _authOrNull();
-		return auth?.currentUser;
-	}
-
-	// Stream<User?> get authStateChanges {
-	// 	final auth = _authOrNull();
-	// 	if (auth == null) return Stream.value(null);
-	// 	return auth.authStateChanges;
-	// }
-
-	String _handleAuthException(FirebaseAuthException e) {
-		switch (e.code) {
-			case 'user-not-found':
-				return 'No user found with this email address.';
-			case 'wrong-password':
-				return 'Incorrect password.';
-			case 'email-already-in-use':
-				return 'An account already exists with this email address.';
-			case 'weak-password':
-				return 'Password is too weak. Please choose a stronger password.';
-			case 'invalid-email':
-				return 'Invalid email address.';
-			case 'user-disabled':
-				return 'This account has been disabled.';
-			case 'too-many-requests':
-				return 'Too many failed attempts. Please try again later.';
-			default:
-				return 'Authentication failed: ${e.message}';
-		}
+	String? get currentUser {
+		return _simpleAuth.getCurrentUser();
 	}
 
 	String aliasForUid(String uid) {
